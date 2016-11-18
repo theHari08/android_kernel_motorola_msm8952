@@ -1965,6 +1965,9 @@ int mdss_mdp_overlay_kickoff(struct msm_fb_data_type *mfd,
 	if (!ctl)
 		return -ENODEV;
 
+	if (!ctl || !ctl->mixer_left)
+		return -ENODEV;
+
 	ATRACE_BEGIN(__func__);
 	if (ctl->shared_lock) {
 		mdss_mdp_ctl_notify(ctl, MDP_NOTIFY_FRAME_BEGIN);
