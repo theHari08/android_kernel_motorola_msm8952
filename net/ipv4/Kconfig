@@ -459,28 +459,6 @@ menuconfig TCP_CONG_ADVANCED
 
 if TCP_CONG_ADVANCED
 
-config TCP_CONG_BIC
-	tristate "Binary Increase Congestion (BIC) control"
-	default m
-	---help---
-	BIC-TCP is a sender-side only change that ensures a linear RTT
-	fairness under large windows while offering both scalability and
-	bounded TCP-friendliness. The protocol combines two schemes
-	called additive increase and binary search increase. When the
-	congestion window is large, additive increase with a large
-	increment ensures linear RTT fairness as well as good
-	scalability. Under small congestion windows, binary search
-	increase provides TCP friendliness.
-	See http://www.csc.ncsu.edu/faculty/rhee/export/bitcp/
-
-config TCP_CONG_CUBIC
-	tristate "CUBIC TCP"
-	default y
-	---help---
-	This is version 2.0 of BIC-TCP which uses a cubic growth function
-	among other techniques.
-	See http://www.csc.ncsu.edu/faculty/rhee/export/bitcp/cubic-paper.pdf
-
 config TCP_CONG_WESTWOOD
 	tristate "TCP Westwood+"
 	default m
@@ -494,6 +472,28 @@ config TCP_CONG_WESTWOOD
 	account the bandwidth used  at the time congestion is experienced.
 	TCP Westwood+ significantly increases fairness wrt TCP Reno in
 	wired networks and throughput over wireless links.
+
+config TCP_CONG_CUBIC
+	tristate "CUBIC TCP"
+	default y
+	---help---
+	This is version 2.0 of BIC-TCP which uses a cubic growth function
+	among other techniques.
+	See http://www.csc.ncsu.edu/faculty/rhee/export/bitcp/cubic-paper.pdf
+
+config TCP_CONG_BIC
+	tristate "Binary Increase Congestion (BIC) control"
+	default m
+	---help---
+	BIC-TCP is a sender-side only change that ensures a linear RTT
+	fairness under large windows while offering both scalability and
+	bounded TCP-friendliness. The protocol combines two schemes
+	called additive increase and binary search increase. When the
+	congestion window is large, additive increase with a large
+	increment ensures linear RTT fairness as well as good
+	scalability. Under small congestion windows, binary search
+	increase provides TCP friendliness.
+	See http://www.csc.ncsu.edu/faculty/rhee/export/bitcp/
 
 config TCP_CONG_HTCP
         tristate "H-TCP"
@@ -597,11 +597,17 @@ choice
 	  Select the TCP congestion control that will be used by default
 	  for all connections.
 
-	config DEFAULT_BIC
-		bool "Bic" if TCP_CONG_BIC=y
+	config DEFAULT_WESTWOOD
+		bool "Westwood" if TCP_CONG_WESTWOOD=y
 
 	config DEFAULT_CUBIC
 		bool "Cubic" if TCP_CONG_CUBIC=y
+
+	config DEFAULT_RENO
+		bool "Reno"
+
+	config DEFAULT_BIC
+		bool "Bic" if TCP_CONG_BIC=y
 
 	config DEFAULT_HTCP
 		bool "Htcp" if TCP_CONG_HTCP=y
@@ -615,12 +621,6 @@ choice
 	config DEFAULT_VENO
 		bool "Veno" if TCP_CONG_VENO=y
 
-	config DEFAULT_WESTWOOD
-		bool "Westwood" if TCP_CONG_WESTWOOD=y
-
-	config DEFAULT_RENO
-		bool "Reno"
-
 endchoice
 
 endif
@@ -632,14 +632,14 @@ config TCP_CONG_CUBIC
 
 config DEFAULT_TCP_CONG
 	string
-	default "bic" if DEFAULT_BIC
+	default "westwood" if DEFAULT_WESTWOOD
 	default "cubic" if DEFAULT_CUBIC
+	default "reno" if DEFAULT_RENO
+	default "bic" if DEFAULT_BIC
 	default "htcp" if DEFAULT_HTCP
 	default "hybla" if DEFAULT_HYBLA
 	default "vegas" if DEFAULT_VEGAS
-	default "westwood" if DEFAULT_WESTWOOD
 	default "veno" if DEFAULT_VENO
-	default "reno" if DEFAULT_RENO
 	default "cubic"
 
 config TCP_MD5SIG
